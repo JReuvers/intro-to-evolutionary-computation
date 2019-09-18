@@ -1,5 +1,6 @@
 (ns intro-to-ec.search-with-solutions
-  (:require [clojure.set :as cset]))
+  (:require [clojure.set :as cset]
+    [shams.priority-queue :as pq]))
 
 (defn remove-previous-states
   [new-states frontier visited]
