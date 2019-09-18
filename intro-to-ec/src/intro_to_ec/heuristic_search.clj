@@ -1,4 +1,4 @@
-(ns intro-to-ec.search-with-solutions
+(ns intro-to-ec.heuristic-search
   (:require [clojure.set :as cset]
     [shams.priority-queue :as pq]))
 
@@ -24,7 +24,7 @@
     [node]
     (conj (generate-path came-from (get came-from node)) node)))
 
-(defn heuristic
+(defn manhattan-distance-heuristic
   [b]
   (+ (Math/abs(- 0 (get b 0))) (Math/abs(- 0 (get b 1)))))
 
@@ -35,18 +35,21 @@
   (loop [frontier [start-node]
          came-from {start-node :start-node}
          num-calls 0]
-    (println num-calls ": " frontier)
-    (println came-from)
+    ; (println num-calls ": " frontier)
+    ; (println came-from)
+    (println "Frontier: " frontier)
+    ;(println "Start Node: " start-node)
     (let [current-node (get-next-node frontier)]
+    ;(println "Current Node: " current-node)
       (cond
         (goal? current-node) (generate-path came-from current-node)
         (= num-calls max-calls) :max-calls-reached
         :else
         (let [kids (remove-previous-states
                     (make-children current-node) frontier (keys came-from))]
-          (recur
-           (add-children
-            kids
-            (rest frontier))
+                    ;(println "Kids: " kids)
+          (let [priority-frontier (reverse (vec
+                  (into (pq/priority-queue #(manhattan-distance-heuristic %)) kids)))]
+          (recur priority-frontier
            (reduce (fn [cf child] (assoc cf child current-node)) came-from kids)
-           (inc num-calls)))))))
+           (inc num-calls))))))))
