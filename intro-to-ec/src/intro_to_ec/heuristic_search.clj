@@ -25,8 +25,12 @@
     (conj (generate-path came-from (get came-from node)) node)))
 
 (defn manhattan-distance-heuristic
-  [b]
-  (+ (Math/abs(- 0 (get b 0))) (Math/abs(- 0 (get b 1)))))
+  [current-node]
+  (+ (Math/abs(- 0 (get current-node 0))) (Math/abs(- 0 (get current-node 1)))))
+
+(defn a-star-heuristic
+  [current-node cost-so-far]
+  (+ (manhattan-distance-heuristic current-node) cost-so-far))
 
 (defn heuristic-search
   [{:keys [get-next-node add-children]}
@@ -54,6 +58,7 @@
 (defn a-star-search
  [{:keys [get-next-node add-children]}
   {:keys [goal? make-children]}
+  heuristic-function
   start-node
   max-calls]
  (loop [frontier [start-node]
@@ -71,7 +76,7 @@
                    (println "Kids: " kids " Num Calls: " num-calls)
          (let [updated-cost (+ 1 (get cost-so-far current-node))]
            (let [priority-frontier (reverse (vec
-                   (into (pq/priority-queue #(+ (manhattan-distance-heuristic %) updated-cost)) kids)))]
+                   (into (pq/priority-queue #(heuristic-function % updated-cost)) (add-children kids (rest frontier)))))]
              (recur priority-frontier
               (reduce (fn [cf child] (assoc cf child current-node)) came-from kids)
               (reduce (fn [cost child] (assoc cost child updated-cost)) cost-so-far kids)
