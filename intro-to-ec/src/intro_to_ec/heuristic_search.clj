@@ -28,9 +28,25 @@
   [current-node]
   (+ (Math/abs(- 0 (get current-node 0))) (Math/abs(- 0 (get current-node 1)))))
 
-(defn a-star-heuristic
+(defn euclidean-distance-heuristic
+  [current-node]
+  (Math/sqrt (+ (* 2 (Math/abs (- 0 (get current-node 0)))) (* 2 (Math/abs (- 0 (get current-node 1)))))))
+
+(defn chebyshev-distance-heuristic
+  [current-node]
+  (max (Math/abs (- 0 (get current-node 0))) (Math/abs (- 0 (get current-node 1)))))
+
+(defn a-star-heuristic-manhattan
   [current-node cost-so-far]
   (+ (manhattan-distance-heuristic current-node) cost-so-far))
+
+(defn a-star-heuristic-euclidean
+  [current-node cost-so-far]
+  (+ (euclidean-distance-heuristic current-node) cost-so-far))
+
+(defn a-star-heuristic-chebyshev
+  [current-node cost-so-far]
+  (+ (chebyshev-distance-heuristic current-node) cost-so-far))
 
 (defn heuristic-search
   [{:keys [get-next-node add-children]}
@@ -55,6 +71,12 @@
              (reduce (fn [cf child] (assoc cf child current-node)) came-from kids)
              (inc num-calls))))))))
 
+; ***************
+; To run: 
+; (require '[intro-to-ec.heuristic-search :as hs])
+; (require '[intro-to-ec.grid-problem-with-walls :as walls])
+; (hs/a-star-search hs/breadth-first-search (walls/make-grid-problem -10 10 #{}) hs/a-star-heuristic-<NAME OF FORMULA> [3 3] 100)
+; ***************
 (defn a-star-search
  [{:keys [get-next-node add-children]}
   {:keys [goal? make-children]}
